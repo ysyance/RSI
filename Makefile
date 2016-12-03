@@ -2,8 +2,8 @@ PREFIX_XENO :=
 EXECUTABLE := exec
 LIBDIR := 
 LIBS := antlr4-runtime
-INCLUDES := ./include ./
-SRCDIR := ./src
+INCLUDES := ./src/Antlr4 ./src/TinyXml
+SRCDIR := ./src ./src/TinyXml
 
 CC = gcc
 CXX = g++
