@@ -8,7 +8,7 @@
 #include "IValue.h"
 #include "RSISyslib.h"
 
-
+// #define RSI_DEBUG 
 
 extern std::vector<IValue> dataspace;			// RSI address space
 
@@ -34,7 +34,9 @@ public:
 	AssignStatement(std::vector<IValue> *as, IValue *srb) : BaseStatement(as, srb), caller(NULL) {}
 
 	virtual int execute(void *cookie) override{
+#ifdef RSI_DEBUG
 		std::cout << "=====assign state execute=====" << std::endl;
+#endif
 		if(caller == NULL) {
 			(*addr)[left] = (*addr)[right];
 		} else {
@@ -58,7 +60,9 @@ public:
 			{}
 
 	virtual int execute(void *cookie) override {
+#ifdef RSI_DEBUG
 		std::cout << "=====if state execute=====" << std::endl;
+#endif
 		int cond = 0;
 		if(exprCaller == NULL) {
 			cond = (int)(*addr)[exprVar];
@@ -134,7 +138,9 @@ public:
 	LoopStatement(std::vector<IValue> *as, IValue *srb) : BaseStatement(as, srb) {}
 
 	virtual int execute(void *cookie) override {
+#ifdef RSI_DEBUG
 		std::cout << "=====loop state execute=====" << std::endl;
+#endif
 		int times = (int)(*addr)[varIndex];
 		times = times > 0 ? times : 0;
 		for(int i = 0; i < times; i ++) {
@@ -157,7 +163,9 @@ public:
 									BaseStatement(as, srb),exprCaller(NULL) {}
 
 	virtual int execute(void *cookie) override {
+#ifdef RSI_DEBUG
 		std::cout << "=====while state execute=====" << std::endl;
+#endif		
 		int cond = 0;
 		if(exprCaller == NULL) {
 			while(cond = ((*addr)[exprVar] > 0 ? (*addr)[exprVar] : 0)) {
@@ -189,7 +197,9 @@ public:
 	CallStatement(std::vector<IValue> *as, IValue *srb) : BaseStatement(as, srb) {}
 
 	virtual int execute(void *cookie) override {
+#ifdef RSI_DEBUG
 		std::cout << "=====call state execute=====" << std::endl;
+#endif		
 		libEntry[index].pfun(params, config);
 	}
 
@@ -200,7 +210,7 @@ public:
 };
 
 
-extern std::vector<BaseStatement*> CodeShadow;		// code model in memory
+typedef std::vector<BaseStatement*> CodeShadow;		// code model in memory
 
 struct PouParam {									// pou parameter
 	std::string pname;

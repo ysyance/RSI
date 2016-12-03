@@ -10,16 +10,18 @@
 
 class RSIExecutor {
 public:
-	RSIExecutor(std::vector<BaseStatement*> &c):code(c) {}
+	RSIExecutor(CodeShadow &c):code(c) {}
 
 	int execute() {
+		std::cout << std::endl << "| ==== RSI executor start ===>" << std::endl << std::endl;
 		for(int i = 0; i < code.size(); i ++) {
 			code[i]->execute(NULL);
 		}
+		std::cout << std::endl << " <=== RSI executor stop ==== |" << std::endl << std::endl;
 		return 0;
 	}
 public:
-	std::vector<BaseStatement*> &code;		// code model in memory
+	CodeShadow &code;		// code model in memory
 };
 
 

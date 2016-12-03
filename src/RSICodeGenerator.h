@@ -31,18 +31,29 @@ extern std::stack<std::vector<BaseStatement*>*> compileStack;
 
 class RSICodeGenerator : public RSIBaseVisitor {
 public:
+	CodeShadow &cs;
+
+public:
+	RSICodeGenerator(CodeShadow &c) : cs(c) {}
+
+	
+public:
 	virtual antlrcpp::Any visitProgram(RSIParser::ProgramContext *ctx) override {
+#ifdef RSI_DEBUG
 		std::cout << "program" << std::endl;
-		compileStack.push(&CodeShadow);
+#endif
+		compileStack.push(&cs);
 		return visitChildren(ctx);
 	}
 
 	virtual antlrcpp::Any visitStatBlock(RSIParser::StatBlockContext *ctx) override {
+#ifdef RSI_DEBUG
 		std::cout << "statBlock" << std::endl;
+#endif
 		
 		antlrcpp::Any result = defaultResult();
 	    size_t n = ctx->children.size();
-	    std::cout << "n : " << n << std::endl;
+	    // std::cout << "n : " << n << std::endl;
 	    for (size_t i = 0; i < n; i++) {
 	        if (!shouldVisitNextChild(ctx, result)) {
 	          break;
@@ -58,7 +69,9 @@ public:
 	}
 
 	virtual antlrcpp::Any visitAssignStat(RSIParser::AssignStatContext *ctx) override {
+#ifdef RSI_DEBUG
 		std::cout << "------assignStat-----" << std::endl;
+#endif
 
 		AssignStatement* tmpAssignStat = visitChildren(ctx);
 		BaseStatement* tempBaseStat = tmpAssignStat;
@@ -67,7 +80,9 @@ public:
 	}
 
 	virtual antlrcpp::Any visitIfStat(RSIParser::IfStatContext *ctx) override {
+#ifdef RSI_DEBUG
 		std::cout << "------ifStat------" << std::endl;
+#endif
 
 		IfStatement* tmpIfStat = visitChildren(ctx);
 		BaseStatement* tempBaseStat = tmpIfStat;
@@ -76,7 +91,9 @@ public:
 	}
 
 	virtual antlrcpp::Any visitWhileStat(RSIParser::WhileStatContext *ctx) override {
+#ifdef RSI_DEBUG
 		std::cout << "--------whileStat---------" << std::endl;
+#endif
 
 		WhileStatement* tmpWhileStat = visitChildren(ctx);
 		BaseStatement* tempBaseStat = tmpWhileStat;
@@ -85,7 +102,9 @@ public:
 	}
 
 	virtual antlrcpp::Any visitLoopStat(RSIParser::LoopStatContext *ctx) override {
+#ifdef RSI_DEBUG
 		std::cout << "--------loopStat---------" << std::endl;
+#endif
 
 		LoopStatement* tmpLoopStat = visitChildren(ctx);
 		BaseStatement* tempBaseStat = tmpLoopStat;
@@ -94,7 +113,9 @@ public:
 	}
 
 	virtual antlrcpp::Any visitCallStat(RSIParser::CallStatContext *ctx) override {
+#ifdef RSI_DEBUG
 		std::cout << "--------callStat------" << std::endl;
+#endif
 
 		CallStatement* tmpCallStat = visitChildren(ctx);
 		BaseStatement* tempBaseStat = tmpCallStat;
@@ -103,7 +124,10 @@ public:
 	}
 
 	virtual antlrcpp::Any visitAssignExpr(RSIParser::AssignExprContext *ctx) override {
+#ifdef RSI_DEBUG
 		std::cout << "assignExpr" << std::endl;
+#endif
+
 		AssignStatement *tempStat = new AssignStatement(&addrspace, &sys_ret_buffer);
 
 		std::string id = ctx->ID()->getText();
@@ -121,7 +145,9 @@ public:
 	}
 
 	virtual antlrcpp::Any visitIfExpr(RSIParser::IfExprContext *ctx) override {
+#ifdef RSI_DEBUG
 		std::cout << "ifExpr" << std::endl;
+#endif
 		IfStatement *tempStat = new IfStatement(&addrspace, &sys_ret_buffer);
 
 		antlrcpp::Any ret = visit(ctx->expr());
@@ -142,7 +168,7 @@ public:
 		/* elseif section */
 		std::vector<BaseStatement*> *elseifStatBlock = new std::vector<BaseStatement*>();
 		int n = (ctx->elseif_stat()).size();
-		std::cout << "else if : " << n << std::endl;
+		// std::cout << "else if : " << n << std::endl;
 		for(int i = 0; i < n; i ++) {
 			ElseifStatement *tmp = visit(ctx->elseif_stat(i));
 			BaseStatement* base = tmp;
@@ -161,7 +187,9 @@ public:
 	}
 
 	virtual antlrcpp::Any visitElseifExpr(RSIParser::ElseifExprContext *ctx) override {
+#ifdef RSI_DEBUG
 		std::cout << "elseifExpr" << std::endl;
+#endif
 		ElseifStatement *tempStat = new ElseifStatement(&addrspace, &sys_ret_buffer);
 
 		antlrcpp::Any ret = visit(ctx->expr());
@@ -182,13 +210,16 @@ public:
 	}
 
 	virtual antlrcpp::Any visitElseExpr(RSIParser::ElseExprContext *ctx) override {
+#ifdef RSI_DEBUG
 		std::cout << "else" << std::endl;
-
+#endif
 		return visitChildren(ctx);
 	}
 
 	virtual antlrcpp::Any visitWhileExpr(RSIParser::WhileExprContext *ctx) override {
+#ifdef RSI_DEBUG
 		std::cout << "whileExpr" << std::endl;
+#endif
 		WhileStatement *tempStat = new WhileStatement(&addrspace, &sys_ret_buffer);
 
 		antlrcpp::Any ret = visit(ctx->expr());
@@ -209,7 +240,9 @@ public:
 	}
 
 	virtual antlrcpp::Any visitLoopExpr(RSIParser::LoopExprContext *ctx) override {
+#ifdef RSI_DEBUG
 		std::cout << "loopExpr" << std::endl;
+#endif
 		LoopStatement *tempStat = new LoopStatement(&addrspace, &sys_ret_buffer);
 
 		tempStat->varIndex = visit(ctx->var());
@@ -225,7 +258,9 @@ public:
 	}
 
 	virtual antlrcpp::Any visitCallExpr(RSIParser::CallExprContext *ctx) override {
+#ifdef RSI_DEBUG
 		std::cout << "callExpr" << std::endl;
+#endif
 		CallStatement *tempStat = new CallStatement(&addrspace, &sys_ret_buffer);
 
 		std::string call_id = ctx->ID()->getText();
@@ -239,19 +274,25 @@ public:
 	}
 
 	virtual antlrcpp::Any visitVariable(RSIParser::VariableContext *ctx) override {
+#ifdef RSI_DEBUG
 		std::cout << "variable" << std::endl;
+#endif
 
 		return visitChildren(ctx);
 	}
 
 	virtual antlrcpp::Any visitCall(RSIParser::CallContext *ctx) override {
+#ifdef RSI_DEBUG
 		std::cout << "call" << std::endl;
+#endif
 
 		return visitChildren(ctx);
 	}
 
 	virtual antlrcpp::Any visitParamlist(RSIParser::ParamlistContext *ctx) override {
+#ifdef RSI_DEBUG
 		std::cout << "paramlist" << std::endl;
+#endif
 
 		std::vector<int> *tempParams = new std::vector<int>();
 
@@ -272,13 +313,17 @@ public:
 	}
 
 	virtual antlrcpp::Any visitNum(RSIParser::NumContext *ctx) override {
+#ifdef RSI_DEBUG
 		std::cout << "num" << std::endl;
+#endif
 		std::string strNum = ctx->NUM()->getText();
 		return constIndexMap[strNum];
 	}
 
 	virtual antlrcpp::Any visitId(RSIParser::IdContext *ctx) override {
+#ifdef RSI_DEBUG
 		std::cout << "id" << std::endl;
+#endif
 		std::string id = ctx->ID()->getText();
 
 		return dataIndexMap[id];

@@ -72,12 +72,14 @@ int main(int , const char **) {
   RSIBaseVisitor vi;          // first time, build constant table
   vi.visit(tree);
 
-  RSICodeGenerator CG;        // second time, generate execute model
+  CodeShadow code;
+
+  RSICodeGenerator CG(code);        // second time, generate execute model
   CG.visit(tree);
 
-  std::cout << tree->toStringTree(&parser) << std::endl;
+  // std::cout << tree->toStringTree(&parser) << std::endl;
 
-  RSIExecutor app(CodeShadow);
+  RSIExecutor app(code);
   app.execute();
 
   // for(auto elem : dataIndexMap) {
