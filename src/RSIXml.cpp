@@ -17,7 +17,7 @@ int RSIXmlLoader::parseXml(std::vector<IValue> &addrspace,
 			TiXmlElement* vEle = varEle->FirstChildElement();
 			for(; vEle != NULL; vEle = vEle->NextSiblingElement()) {
 				std::string varName;
-				std::string varVal;
+				std::string varVal("0");
 
 				TiXmlAttribute* attr = vEle->FirstAttribute();
 				for(; attr != NULL; attr = attr->Next()) {
@@ -64,6 +64,22 @@ int RSIXmlLoader::parseXml(std::vector<IValue> &addrspace,
 
 		}
 
+	}
+
+
+	TiXmlElement* commEle;
+	if(getNodeByName(rootEle, "COMMUNICATION", commEle)) {
+		EntityBase* entity = EntityFactory::getEntity("COMMUNICATION");
+
+		TiXmlElement* configEle ;
+		if(getNodeByName(commEle, "CONFIG", configEle)) {
+			TiXmlElement* cEle = configEle->FirstChildElement();
+			for(; cEle != NULL; cEle = cEle->NextSiblingElement()) {
+				entity->setConfig(cEle->Value(), cEle->GetText());
+			}
+		}
+
+		fbMap.insert(std::pair<std::string, EntityBase*>("COMMUNICATION", entity));
 	}
 }
 

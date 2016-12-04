@@ -78,7 +78,7 @@ typedef enum{
 	RSI_GEARTORQUE,
 	RSI_MOTORCURRENT,
 
-	RSI_COMM_INTERFACE,
+	RSI_COMMUNICATION,
 
 }POUId;
 
@@ -309,7 +309,7 @@ static const RSILibEntry libEntry[RSI_LIB_SIZE] = {
 	{"GEARTORQUE", VARIABLE_LEN, rsi_geartorque},
 	{"MOTORCURRENT", VARIABLE_LEN, rsi_motorcurrent},
 
-	{"COMM_INTERFACE", VARIABLE_LEN, rsi_comm_interface},
+	{"COMMUNICATION", VARIABLE_LEN, rsi_comm_interface},
 };
 
 
@@ -385,6 +385,42 @@ public:
 
 
 
+class EntityComm : public EntityBase{
+public:
+	EntityComm() : EntityBase("COMMUNICATION") {}
+
+	virtual int setConfig(std::string key, std::string value) override {
+		if(key == "COM_TYPE")  {
+			comm_type = value;
+		} else if(key == "IP"){
+			ip = value;
+		} else if(key == "PORT"){
+			port = value;
+		} else if(key == "ROOTNAME"){
+			rootNode = value;
+		}else {
+			return -1;
+		}
+		return 0;
+	}
+
+	virtual int printInfo() override {
+		std::cout << "Type: " << funcName << " --> ";
+		std::cout << "comm_type=" << comm_type << " ip=" << ip << " port=" << port << " rootNode=" << rootNode << std::endl;
+	}
+
+public:
+	std::string comm_type;			// communication interface type (udp\tcp\...)
+	std::string ip;					// ip address
+	std::string port;				// port number
+
+	std::string rootNode;			// the root node name of xml during transferation
+
+
+};
+
+
+
 class EntityFactory {
 public:
 	static EntityBase* getEntity(std::string name) {
@@ -392,6 +428,8 @@ public:
 			return new EntityPID();
 		} else if(name == "DELAY") {
 			return new EntityDELAY();
+		} else if(name == "COMMUNICATION"){
+			return new EntityComm();
 		} else {
 			return NULL;
 		}

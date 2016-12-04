@@ -63,8 +63,8 @@ int main(int , const char **) {
   //   std::cout << elem.first << " : " << addrspace[elem.second] << std::endl;
   // }
 
-  // for(auto e : addrspace) {
-  //   std::cout << e << std::endl;
+  // for(int i = 1; i < addrspace.size(); i++) {
+  //   std::cout << i << ": "<< rdataIndexMap[i]<< " = " << addrspace[i] << std::endl;
   // }
 
   // for(auto &e : fbMap) {
