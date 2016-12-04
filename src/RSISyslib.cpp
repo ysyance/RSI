@@ -4,6 +4,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -30,50 +31,31 @@ inline int rsi_comm_interface( 	std::vector<int>& params,
 		entity->printInfo();
 	} else {
 		std::cout << "this fb does not have config entity" << std::endl;
+		return -1;
 	}
 
-    // struct sockaddr_in addr;
-    // int sock;
+    struct sockaddr_in addr;
+    int sockfd;
 
-    // if ( (sock=socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
-    //     perror("socket");
-    //     exit(1);
-    // }
-    // addr.sin_family = AF_INET;
-    // addr.sin_port = htons(atoi(argv[2]));
-    // addr.sin_addr.s_addr = inet_addr(argv[1]);
-    // if (addr.sin_addr.s_addr == INADDR_NONE) {
-    //     printf("Incorrect ip address!");
-    //     close(sock);
-    //     exit(1);
-    // }
+    if(entity->initflag != true) {
+    	sockfd = socket(AF_INET, SOCK_DGRAM, 0); 
 
-    // char buff[512];
-    // int len = sizeof(addr);
-    // while(1) {
-    //     gets(buff);
-    //     int n;
-    //     n = sendto(sock, buff, strlen(buff), 0, (struct sockaddr *)&addr, sizeof(addr));
-    //     if(n < 0) {
-    //         perror("sendto");
-    //         close(sock);
-    //         break;
-    //     }
-    //     n = recvfrom(sock, buff, 512, 0, (struct sockaddr *)&addr, &len);
-    //     if(n > 0) {
-    //         buff[n] = 0;
-    //         printf("received:");
-    //         puts(buff);
-    //     } else if (n==0) {
-    //         printf("server closed\n");
-    //         close(sock);
-    //         break;
-    //     } else if (n == -1) {
-    //         perror("recvfrom");
-    //         close(sock);
-    //         break;
-    //     }
-    // }
+	    bzero(&addr, sizeof(addr));
+	    addr.sin_family = AF_INET;
+	    addr.sin_port = htons(atoi(entity->port.c_str()));
+	    addr.sin_addr.s_addr = inet_addr(entity->ip.c_str());
+
+	    entity->initflag = true;
+    }
+
+    sprintf(entity->sendBuffer, "Hello, world!");
+    int sn = sendto(sockfd, entity->sendBuffer, strlen(entity->sendBuffer), 0, (struct sockaddr *)&addr, sizeof(addr));
+    std::cout << sn << std::endl;
+
+    // int rn = recvfrom(sockfd, entity->recvBuffer, strlen(entity->recvBuffer), 0, NULL, NULL);
+    // std::cout << rn << std::endl;
+
+    close(sockfd);
     
 	return 0;
 }

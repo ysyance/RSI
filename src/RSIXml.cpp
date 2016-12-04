@@ -69,7 +69,7 @@ int RSIXmlLoader::parseXml(std::vector<IValue> &addrspace,
 
 	TiXmlElement* commEle;
 	if(getNodeByName(rootEle, "COMMUNICATION", commEle)) {
-		EntityBase* entity = EntityFactory::getEntity("COMMUNICATION");
+		EntityComm* entity = dynamic_cast<EntityComm*>(EntityFactory::getEntity("COMMUNICATION"));
 
 		TiXmlElement* configEle ;
 		if(getNodeByName(commEle, "CONFIG", configEle)) {
@@ -77,6 +77,62 @@ int RSIXmlLoader::parseXml(std::vector<IValue> &addrspace,
 			for(; cEle != NULL; cEle = cEle->NextSiblingElement()) {
 				entity->setConfig(cEle->Value(), cEle->GetText());
 			}
+		}
+
+		TiXmlElement* sendEle ;
+		if(getNodeByName(commEle, "SEND", sendEle)) {
+			// std::cout << "SEND" << std::endl;
+			TiXmlElement* sEle = sendEle->FirstChildElement()->FirstChildElement();
+			for(; sEle != NULL; sEle = sEle->NextSiblingElement()) {
+				std::string tagName;
+				int varIndex = 0;
+
+				TiXmlAttribute* attr = sEle->FirstAttribute();
+				for(; attr != NULL; attr = attr->Next()) {
+					std::string attrName = attr->Name();
+					if(attrName == "TAG") {
+						tagName = attr->Value();
+					} else if(attrName == "VAR") {
+						varIndex = dataIndexMap[attr->Value()]; // if varIndex == 0 then var is invalid
+						if(varIndex == 0) {
+							std::cout << "the var of [" << attr->Value() << "] is not declared" << std::endl; 
+						} 
+					} else if(attrName == "TYPE") {
+
+					}
+				}
+				
+				entity->setSendDataMap(tagName, varIndex);
+			}
+
+		}
+
+		TiXmlElement* recvEle ;
+		if(getNodeByName(commEle, "RECEIVE", recvEle)) {
+			// std::cout << "RECEIVE" << std::endl;
+			TiXmlElement* rEle = recvEle->FirstChildElement()->FirstChildElement();
+			for(; rEle != NULL; rEle = rEle->NextSiblingElement()) {
+				std::string tagName;
+				int varIndex = 0;
+
+				TiXmlAttribute* attr = rEle->FirstAttribute();
+				for(; attr != NULL; attr = attr->Next()) {
+					std::string attrName = attr->Name();
+					if(attrName == "TAG") {
+						tagName = attr->Value();
+					} else if(attrName == "VAR") {
+						varIndex = dataIndexMap[attr->Value()];	// if varIndex == 0 then var is invalid
+						if(varIndex == 0) {
+							std::cout << "the var of [" << attr->Value() << "] is not declared" << std::endl; 
+						} 
+					} else if(attrName == "TYPE") {
+
+					}
+				}
+
+				entity->setRecvDataMap(tagName, varIndex);
+			}
+
 		}
 
 		fbMap.insert(std::pair<std::string, EntityBase*>("COMMUNICATION", entity));

@@ -89,7 +89,7 @@
                 <ELEMENT TAG="RKorr.B" TYPE="DOUBLE" VAR="KB" />
                 <ELEMENT TAG="RKorr.C" TYPE="DOUBLE" VAR="KC"/>
                 <ELEMENT TAG="FREE" TYPE="LONG" VAR="FR" />
-                <ELEMENT TAG="STOP.stopFlag" TYPE="BOOL" INDX="STOP" /> 
+                <ELEMENT TAG="STOP.stopFlag" TYPE="BOOL" VAR="STOP" /> 
             </ELEMENTS>
         </RECEIVE>
     </COMMUNICATION>

@@ -6,6 +6,8 @@
 #include <string>
 #include <unordered_map>
 
+#include <memory.h>
+
 #include "IValue.h"
 
 #define MAX_SPOU_NAME_SIZE  50
@@ -384,10 +386,19 @@ public:
 };
 
 
-
 class EntityComm : public EntityBase{
 public:
-	EntityComm() : EntityBase("COMMUNICATION") {}
+	struct SendDataElem {  		// just for EntityComm
+		std::string tag;
+		std::vector<std::pair<std::string, int>> dataMap;
+		std::pair<std::string, int> tagText;
+	};
+
+public:
+	EntityComm() : EntityBase("COMMUNICATION"), initflag(false) {
+		memset(sendBuffer, 0, 4096);
+		memset(recvBuffer, 0, 4096);
+	}
 
 	virtual int setConfig(std::string key, std::string value) override {
 		if(key == "COM_TYPE")  {
@@ -404,9 +415,90 @@ public:
 		return 0;
 	}
 
+	int setSendDataMap(std::string &tagName, int varIndex) {
+		int pos = 0;
+		std::string tag;
+		std::string key;
+
+		if((pos = tagName.find(".")) != std::string::npos) {
+			tag = tagName.substr(0, pos);
+			key = tagName.substr(pos+1);
+		} else {
+			tag = tagName;
+			key = tagName;
+		}
+
+		int index = 0;
+		for(; index < sendDataMap.size(); index ++) {
+			if(sendDataMap[index].tag == tag) {
+				break;
+			}
+		}
+		if(index == sendDataMap.size()) {
+			SendDataElem tmp;
+			tmp.tag = tag;
+			if(tag != key) {
+				tmp.dataMap.push_back(std::pair<std::string, int>(key, varIndex));
+			} else {
+				tmp.tagText = std::pair<std::string, int>(key, varIndex);
+			}
+			sendDataMap.push_back(tmp);
+		} else {
+			if(tag != key) {
+				sendDataMap[index].dataMap.push_back(std::pair<std::string, int>(key, varIndex));
+			} else{
+				sendDataMap[index].tagText = std::pair<std::string, int>(key, varIndex);
+			}
+		}
+
+		return 0;
+	}
+
+	int setRecvDataMap(std::string &tagName, int varIndex) {
+		int pos = 0;
+		std::string tag;
+		std::string key;
+
+		if((pos = tagName.find(".")) != std::string::npos) {
+			tag = tagName.substr(0, pos);
+			key = tagName.substr(pos+1);
+		} else {
+			tag = tagName;
+			key = tagName;
+		}
+
+		if(recvDataMap.find(tag) != recvDataMap.end()) {
+			recvDataMap[tag].insert(std::pair<std::string, int>(key, varIndex));
+		} else {
+			std::unordered_map<std::string, int> map;
+			map.insert(std::pair<std::string, int>(key, varIndex));
+			recvDataMap.insert(std::pair<std::string, std::unordered_map<std::string, int>>(tag, map));
+		}
+
+	}
+
 	virtual int printInfo() override {
 		std::cout << "Type: " << funcName << " --> ";
 		std::cout << "comm_type=" << comm_type << " ip=" << ip << " port=" << port << " rootNode=" << rootNode << std::endl;
+		std::cout << "[> --- SENDDATAMAP --- <]" << std::endl;
+		for(auto &e : sendDataMap) {
+			std::cout << e.tag << std::endl;
+			for(auto &elem : e.dataMap) {
+				std::cout << elem.first << "<-->" << elem.second << " ";
+			}
+			std::cout << std::endl;
+			if(e.tagText.first != "") {
+				std::cout << e.tagText.first << "<-->" << e.tagText.second << std::endl;
+			}
+		}
+		std::cout << "[> --- RECVDATAMAP --- <]" << std::endl;
+		for(auto &e : recvDataMap) {
+			std::cout << e.first << std::endl;
+			for(auto &elem : e.second) {
+				std::cout << elem.first << "<-->" << elem.second << " ";
+			}
+			std::cout << std::endl;
+		}
 	}
 
 public:
@@ -416,7 +508,14 @@ public:
 
 	std::string rootNode;			// the root node name of xml during transferation
 
+	std::unordered_map<std::string, std::unordered_map<std::string, int>>  recvDataMap; // indicate <tag, <property, index>>
 
+	std::vector<SendDataElem> sendDataMap;		// send data rule
+public:
+	bool initflag;					
+
+	char sendBuffer[4096];			
+	char recvBuffer[4096];
 };
 
 
