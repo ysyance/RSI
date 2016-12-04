@@ -19,24 +19,26 @@ using namespace antlr4;
 
 
 
-extern std::unordered_map<std::string, int> dataIndexMap;   // parser xml file and generator dataMap
 
-extern std::unordered_map<std::string, int> constIndexMap;   // the index of all the constants in addr space 
-
-extern std::unordered_map<std::string, EntityBase*> fbMap;    		// parser xml file and generator functionblock map
-
-extern std::unordered_map<std::string, int> funcMap;  	    // all library function map to check if designated function is existed
-
-
-extern std::stack<std::vector<BaseStatement*>*> compileStack;
 
 
 class RSICodeGenerator : public RSIBaseVisitor {
 public:
 	CodeShadow &cs;
+	std::vector<IValue> &addrspace;     // RSI address space --- simple version; addrspace[0] is the returned value of all the library function  in global
+
+	std::unordered_map<std::string, int> &dataIndexMap;	// parser xml file and generator dataMap
+	std::unordered_map<std::string, int> &constIndexMap;	// the index of all the constants in addr space 
+	std::unordered_map<std::string, EntityBase*> &fbMap;    		// parser xml file and generator functionblock map
+	std::unordered_map<std::string, int> &funcMap;  	    // all library function map to check if designated function is existed
+
+	std::stack<std::vector<BaseStatement*>*> compileStack;	
 
 public:
-	RSICodeGenerator(CodeShadow &c) : cs(c) {}
+	RSICodeGenerator(CodeShadow &c, SymbolTable &s) : RSIBaseVisitor(s), cs(c), addrspace(s.addrspace),
+								dataIndexMap(s.dataIndexMap), constIndexMap(s.constIndexMap),
+								fbMap(s.fbMap), funcMap(s.funcMap)
+								{}
 
 	
 public:

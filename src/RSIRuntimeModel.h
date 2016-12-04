@@ -10,11 +10,10 @@
 
 // #define RSI_DEBUG 
 
-extern std::vector<IValue> dataspace;			// RSI address space
 
-extern std::vector<IValue> addrspace;			// RSI address space --- simple version
-
-
+#ifdef RSI_PRINT
+extern std::unordered_map<int, std::string> rdataIndexMap;   // index --> var
+#endif
 
 class BaseStatement {
 public:
@@ -192,7 +191,7 @@ public:
 class CallStatement : public BaseStatement {
 public:
 	CallStatement() {}
-	CallStatement(std::vector<IValue> *as) : BaseStatement(as) {}
+	CallStatement(std::vector<IValue> *as) : BaseStatement(as), config(NULL) {}
 
 	virtual int execute(void *cookie) override {
 #ifdef RSI_DEBUG
@@ -204,7 +203,7 @@ public:
 public:
 	int index;						// the index of library function
 	std::vector<int> params;		// the index of function parameters
-	void *config;					// the config of fb
+	EntityBase *config;					// the config of fb
 };
 
 
@@ -223,4 +222,33 @@ public:
 };
 
 
+class SymbolTable{
+public:
+	std::vector<IValue> &addrspace;     // RSI address space --- simple version; addrspace[0] is the returned value of all the library function  in global
+
+	std::unordered_map<std::string, int> &dataIndexMap;		// parser xml file and generator dataMap
+	std::unordered_map<std::string, int> &constIndexMap;	// the index of all the constants in addr space 
+	std::unordered_map<std::string, EntityBase*> &fbMap;    // parser xml file and generator functionblock map
+	std::unordered_map<std::string, int> &funcMap;  	    // all library function map to check if designated function is existed
+
+	SymbolTable(std::vector<IValue> &a,
+		  		std::unordered_map<std::string, int> &d,		
+				std::unordered_map<std::string, int> &c,	
+				std::unordered_map<std::string, EntityBase*> &fb,   
+				std::unordered_map<std::string, int> &func) : 
+						addrspace(a), dataIndexMap(d), constIndexMap(c), fbMap(fb), funcMap(func) {}
+
+public:
+	int create() {
+		for(int i = 0; i < RSI_LIB_SIZE; i ++) {
+			funcMap.insert(std::pair<std::string, int>(libEntry[i].name, i));
+		}
+#ifdef RSI_DEBUG_PRINT
+		for(auto elem : dataIndexMap) {
+			rdataIndexMap.insert(std::pair<int, std::string>(elem.second, elem.first));
+		}
+#endif
+	}
+
+};
 

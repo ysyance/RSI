@@ -22,6 +22,7 @@ public:
 	}
 public:
 	CodeShadow &code;		// code model in memory
+	int period; 			// period in ms
 };
 
 

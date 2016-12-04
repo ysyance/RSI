@@ -17,57 +17,47 @@ using namespace antlr4;
 using namespace antlr4::tree;
 
 
-std::unordered_map<std::string, int> dataIndexMap;   // parser xml file and generator dataMap; var --> index
+#ifdef RSI_DEBUG_PRINT
 std::unordered_map<int, std::string> rdataIndexMap;   // index --> var
-
-std::unordered_map<std::string, int> constIndexMap;   // the index of all the constants in addr space 
-
-std::unordered_map<std::string, EntityBase*> fbMap;       // parser xml file and generator functionblock map
-
-std::unordered_map<std::string, int> funcMap;       // all library function map to check if designated function is existed
-
-std::vector<IValue> addrspace(1, 0);     // RSI address space --- simple version; addrspace[0] is the returned value of all the library function  in global
-
-void init(){
-
-  for(int i = 0; i < RSI_LIB_SIZE; i ++) {
-    funcMap.insert(std::pair<std::string, int>(libEntry[i].name, i));
-  }
-
-  for(auto elem : dataIndexMap) {
-    rdataIndexMap.insert(std::pair<int, std::string>(elem.second, elem.first));
-  }
-}
+#endif
 
 
 int main(int , const char **) {
+
+  std::unordered_map<std::string, int> dataIndexMap;    // parser xml file and generator dataMap; var --> index
+  std::unordered_map<std::string, int> constIndexMap;   // the index of all the constants in addr space 
+  std::unordered_map<std::string, EntityBase*> fbMap;   // parser xml file and generator functionblock map
+  std::unordered_map<std::string, int> funcMap;         // all library function map to check if designated function is existed
+
+  std::vector<IValue> addrspace(1, 0);     // RSI address space ; addrspace[0] is the returned value of all the library function  in global
 
 
   RSIXmlLoader loader("config.xml");
   loader.parseXml(addrspace, dataIndexMap, fbMap);
 
-  init();                     // build funcMap and rdataIndexMap
+  SymbolTable symTable(addrspace, dataIndexMap, constIndexMap, fbMap, funcMap);
+  symTable.create();
 
-  std::ifstream infile("rsi.code");
-  ANTLRInputStream input(infile);
+  /* read rsi code */
+  std::ifstream infile("rsi.code");     
+  ANTLRInputStream input(infile);     
+  /* rsi code lexer analysis */  
   RSILexer lexer(&input);
   CommonTokenStream tokens(&lexer);
-
+  /* rsi code parser analysis */  
   RSIParser parser(&tokens);
   ParseTree *tree = parser.prog();
 
-  RSIBaseVisitor vi;                // first time, build constant table
+  RSIBaseVisitor vi(symTable);                // first time, build constant table
   vi.visit(tree);
 
-  CodeShadow code;
+  CodeShadow code;                  // define rsi code shadow in memory
 
-  RSICodeGenerator CG(code);        // second time, generate execute model
+  RSICodeGenerator CG(code, symTable);        // second time, generate execute model
   CG.visit(tree);
 
-  // std::cout << tree->toStringTree(&parser) << std::endl;
-
-  RSIExecutor app(code);
-  app.execute();
+  RSIExecutor app(code);            // create rsi code executor
+  app.execute();                    // start execute
 
   // for(auto elem : dataIndexMap) {
   //   std::cout << elem.first << " : " << addrspace[elem.second] << std::endl;

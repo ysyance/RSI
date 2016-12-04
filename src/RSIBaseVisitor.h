@@ -9,16 +9,21 @@
 #include "RSIRuntimeModel.h"
 
 
-extern std::unordered_map<std::string, int> dataIndexMap;   // parser xml file and generator dataMap
 
-extern std::unordered_map<std::string, int> constIndexMap;   // the index of all the constants in addr space 
 
-extern std::vector<IValue> addrspace;     // RSI address space --- simple version
 /**
  * This class provides an empty implementation of RSIVisitor, which can be
  * extended to create a visitor which only needs to handle a subset of the available methods.
  */
 class RSIBaseVisitor : public RSIVisitor {
+public:
+  std::vector<IValue> &addrspace;     // RSI address space --- simple version
+  std::unordered_map<std::string, int> &constIndexMap;   // the index of all the constants in addr space 
+  
+
+public:
+  RSIBaseVisitor(SymbolTable &s): constIndexMap(s.constIndexMap), addrspace(s.addrspace){}
+
 public:
 
   virtual antlrcpp::Any visitProgram(RSIParser::ProgramContext *ctx) override {
