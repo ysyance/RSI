@@ -198,7 +198,7 @@ public:
 #ifdef RSI_DEBUG
 		std::cout << "=====call state execute=====" << std::endl;
 #endif		
-		libEntry[index].pfun(params, config);
+		libEntry[index].pfun(params, config, *addr);
 	}
 
 public:

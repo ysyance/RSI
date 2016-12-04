@@ -12,13 +12,11 @@
 
 extern std::unordered_map<int, std::string> rdataIndexMap;   // index --> var
 
-extern std::vector<IValue> addrspace;			// RSI address space --- simple version
-
 
 typedef struct {
     char name[MAX_SPOU_NAME_SIZE];
     int param_count;
-    int (*pfun)(std::vector<int>&, void*);
+    int (*pfun)(std::vector<int>&, void*, std::vector<IValue>&);
 } RSILibEntry; /* System-level POU(Library) descriptor */
 
 typedef enum{
@@ -80,7 +78,7 @@ typedef enum{
 }POUId;
 
 
-inline int rsi_sum(std::vector<int>& params, void* config) {
+inline int rsi_sum(std::vector<int>& params, void* config, std::vector<IValue>& addrspace) {
 	addrspace[0] = 0;
 	for(int i = 0; i < params.size(); i ++) {
 		addrspace[0] += addrspace[params[i]];
@@ -88,77 +86,77 @@ inline int rsi_sum(std::vector<int>& params, void* config) {
 	return 0;
 }
 
-inline int rsi_sub(std::vector<int>& params, void* config) {
+inline int rsi_sub(std::vector<int>& params, void* config, std::vector<IValue>& addrspace) {
 	addrspace[0] = addrspace[params[0]] - addrspace[params[1]];
 	return 0;
 }
 
-inline int rsi_multi(std::vector<int>& params, void* config) {
+inline int rsi_multi(std::vector<int>& params, void* config, std::vector<IValue>& addrspace) {
 	addrspace[0] = addrspace[params[0]] * addrspace[params[1]];
 	return 0;
 }
-inline int rsi_div(std::vector<int>& params, void* config) {
+inline int rsi_div(std::vector<int>& params, void* config, std::vector<IValue>& addrspace) {
 	addrspace[0] = addrspace[params[0]] / addrspace[params[1]];
 	return 0;
 }
 
-inline int rsi_abs(std::vector<int>& params, void* config) {}
-inline int rsi_norm(std::vector<int>& params, void* config) {}
-inline int rsi_exp(std::vector<int>& params, void* config) {}
-inline int rsi_log(std::vector<int>& params, void* config) {}
-inline int rsi_ceil(std::vector<int>& params, void* config) {}
-inline int rsi_floor(std::vector<int>& params, void* config) {}
-inline int rsi_pow(std::vector<int>& params, void* config) {}
+inline int rsi_abs(std::vector<int>& params, void* config, std::vector<IValue>& addrspace) {}
+inline int rsi_norm(std::vector<int>& params, void* config, std::vector<IValue>& addrspace) {}
+inline int rsi_exp(std::vector<int>& params, void* config, std::vector<IValue>& addrspace) {}
+inline int rsi_log(std::vector<int>& params, void* config, std::vector<IValue>& addrspace) {}
+inline int rsi_ceil(std::vector<int>& params, void* config, std::vector<IValue>& addrspace) {}
+inline int rsi_floor(std::vector<int>& params, void* config, std::vector<IValue>& addrspace) {}
+inline int rsi_pow(std::vector<int>& params, void* config, std::vector<IValue>& addrspace) {}
 
-inline int rsi_sin(std::vector<int>& params, void* config) {}
-inline int rsi_cos(std::vector<int>& params, void* config) {}
-inline int rsi_tan(std::vector<int>& params, void* config) {}
-inline int rsi_asin(std::vector<int>& params, void* config) {}
-inline int rsi_acos(std::vector<int>& params, void* config) {}
-inline int rsi_atan(std::vector<int>& params, void* config) {}
-inline int rsi_atan2(std::vector<int>& params, void* config) {}
+inline int rsi_sin(std::vector<int>& params, void* config, std::vector<IValue>& addrspace) {}
+inline int rsi_cos(std::vector<int>& params, void* config, std::vector<IValue>& addrspace) {}
+inline int rsi_tan(std::vector<int>& params, void* config, std::vector<IValue>& addrspace) {}
+inline int rsi_asin(std::vector<int>& params, void* config, std::vector<IValue>& addrspace) {}
+inline int rsi_acos(std::vector<int>& params, void* config, std::vector<IValue>& addrspace) {}
+inline int rsi_atan(std::vector<int>& params, void* config, std::vector<IValue>& addrspace) {}
+inline int rsi_atan2(std::vector<int>& params, void* config, std::vector<IValue>& addrspace) {}
 
-inline int rsi_inc(std::vector<int>& params, void* config) {
+inline int rsi_inc(std::vector<int>& params, void* config, std::vector<IValue>& addrspace) {
 	addrspace[params[0]] += 1;
 	return 0;
 }
-inline int rsi_dec(std::vector<int>& params, void* config) {
+inline int rsi_dec(std::vector<int>& params, void* config, std::vector<IValue>& addrspace) {
 	addrspace[params[0]] -= 1;
 	return 0;
 }
 
-inline int rsi_print(std::vector<int>& params, void* config) {
+inline int rsi_print(std::vector<int>& params, void* config, std::vector<IValue>& addrspace) {
 	std::cout << "[DEBUG: " << rdataIndexMap[params[0]] << " --> " << addrspace[params[0]] << " ]" << std::endl;
 	return 0;
 }
 
 
-inline int rsi_eq(std::vector<int>& params, void* config) {
+inline int rsi_eq(std::vector<int>& params, void* config, std::vector<IValue>& addrspace) {
 	addrspace[0] = addrspace[params[0]] == addrspace[params[1]] ? 1 : 0;
 	return 0;
 }
 
-inline int rsi_gt(std::vector<int>& params, void* config) {
+inline int rsi_gt(std::vector<int>& params, void* config, std::vector<IValue>& addrspace) {
 	addrspace[0] = addrspace[params[0]] > addrspace[params[1]] ? 1 : 0;
 	return 0;
 }
 
-inline int rsi_ge(std::vector<int>& params, void* config) {
+inline int rsi_ge(std::vector<int>& params, void* config, std::vector<IValue>& addrspace) {
 	addrspace[0] = addrspace[params[0]] >= addrspace[params[1]] ? 1 : 0;
 	return 0;
 }
 
-inline int rsi_lt(std::vector<int>& params, void* config) {
+inline int rsi_lt(std::vector<int>& params, void* config, std::vector<IValue>& addrspace) {
 	addrspace[0] = addrspace[params[0]] < addrspace[params[1]] ? 1 : 0;
 	return 0;
 }
 
-inline int rsi_le(std::vector<int>& params, void* config) {
+inline int rsi_le(std::vector<int>& params, void* config, std::vector<IValue>& addrspace) {
 	addrspace[0] = addrspace[params[0]] <= addrspace[params[1]] ? 1 : 0;
 	return 0;
 }
 
-inline int rsi_and(std::vector<int>& params, void* config) {
+inline int rsi_and(std::vector<int>& params, void* config, std::vector<IValue>& addrspace) {
 	int cond1 = addrspace[params[0]];
 	int cond2 = addrspace[params[1]];
 	addrspace[0] = cond1 && cond2;
@@ -166,7 +164,7 @@ inline int rsi_and(std::vector<int>& params, void* config) {
 	return 0;
 }
 
-inline int rsi_or(std::vector<int>& params, void* config) {
+inline int rsi_or(std::vector<int>& params, void* config, std::vector<IValue>& addrspace) {
 	int cond1 = addrspace[params[0]];
 	int cond2 = addrspace[params[1]];
 	addrspace[0] = cond1 || cond2;
@@ -174,7 +172,7 @@ inline int rsi_or(std::vector<int>& params, void* config) {
 	return 0;
 }
 
-inline int rsi_xor(std::vector<int>& params, void* config) {
+inline int rsi_xor(std::vector<int>& params, void* config, std::vector<IValue>& addrspace) {
 	int cond1 = addrspace[params[0]];
 	int cond2 = addrspace[params[1]];
 	if(cond1 == 0 && cond2 != 0 || cond1 != 0 && cond2 == 0){
@@ -186,23 +184,23 @@ inline int rsi_xor(std::vector<int>& params, void* config) {
 	return 0;
 }
 
-inline int rsi_not(std::vector<int>& params, void* config) {
+inline int rsi_not(std::vector<int>& params, void* config, std::vector<IValue>& addrspace) {
 	int cond1 = addrspace[params[0]];
 	addrspace[0] = (cond1 == 0 ? 1 : 0);
 	return 0;
 }
 
-inline int rsi_p(std::vector<int>& params, void* config) {}
-inline int rsi_pd(std::vector<int>& params, void* config) {}
-inline int rsi_i(std::vector<int>& params, void* config) {}
-inline int rsi_d(std::vector<int>& params, void* config) {}
-inline int rsi_pi(std::vector<int>& params, void* config) {}
-inline int rsi_pid(std::vector<int>& params, void* config) {}
+inline int rsi_p(std::vector<int>& params, void* config, std::vector<IValue>& addrspace) {}
+inline int rsi_pd(std::vector<int>& params, void* config, std::vector<IValue>& addrspace) {}
+inline int rsi_i(std::vector<int>& params, void* config, std::vector<IValue>& addrspace) {}
+inline int rsi_d(std::vector<int>& params, void* config, std::vector<IValue>& addrspace) {}
+inline int rsi_pi(std::vector<int>& params, void* config, std::vector<IValue>& addrspace) {}
+inline int rsi_pid(std::vector<int>& params, void* config, std::vector<IValue>& addrspace) {}
 
-inline int rsi_timer(std::vector<int>& params, void* config) {}
-inline int rsi_limit(std::vector<int>& params, void* config) {}
+inline int rsi_timer(std::vector<int>& params, void* config, std::vector<IValue>& addrspace) {}
+inline int rsi_limit(std::vector<int>& params, void* config, std::vector<IValue>& addrspace) {}
 
-inline int rsi_min(std::vector<int>& params, void* config) {
+inline int rsi_min(std::vector<int>& params, void* config, std::vector<IValue>& addrspace) {
 	addrspace[0] = addrspace[params[0]];
 	for(int i = 0; i < params.size(); i ++) {
 		addrspace[0] = addrspace[params[i]] < addrspace[0] ? addrspace[params[i]] : addrspace[0];
@@ -210,7 +208,7 @@ inline int rsi_min(std::vector<int>& params, void* config) {
 	return 0;
 }
 
-inline int rsi_max(std::vector<int>& params, void* config) {
+inline int rsi_max(std::vector<int>& params, void* config, std::vector<IValue>& addrspace) {
 	addrspace[0] = addrspace[params[0]];
 	for(int i = 0; i < params.size(); i ++) {
 		addrspace[0] = addrspace[params[i]] > addrspace[0] ? addrspace[params[i]] : addrspace[0];
@@ -218,18 +216,18 @@ inline int rsi_max(std::vector<int>& params, void* config) {
 	return 0;
 }
 
-inline int rsi_delay(std::vector<int>& params, void* config) {}
-inline int rsi_monitor(std::vector<int>& params, void* config) {}
-inline int rsi_stop(std::vector<int>& params, void* config) {}
+inline int rsi_delay(std::vector<int>& params, void* config, std::vector<IValue>& addrspace) {}
+inline int rsi_monitor(std::vector<int>& params, void* config, std::vector<IValue>& addrspace) {}
+inline int rsi_stop(std::vector<int>& params, void* config, std::vector<IValue>& addrspace) {}
 
 
-inline int rsi_axiscorr(std::vector<int>& params, void* config) {}
-inline int rsi_poscorr(std::vector<int>& params, void* config) {}
-inline int rsi_transfame(std::vector<int>& params, void* config) {}
-inline int rsi_posact(std::vector<int>& params, void* config) {}
-inline int rsi_axisact(std::vector<int>& params, void* config) {}
-inline int rsi_geartorque(std::vector<int>& params, void* config) {}
-inline int rsi_motorcurrent(std::vector<int>& params, void* config) {}
+inline int rsi_axiscorr(std::vector<int>& params, void* config, std::vector<IValue>& addrspace) {}
+inline int rsi_poscorr(std::vector<int>& params, void* config, std::vector<IValue>& addrspace) {}
+inline int rsi_transfame(std::vector<int>& params, void* config, std::vector<IValue>& addrspace) {}
+inline int rsi_posact(std::vector<int>& params, void* config, std::vector<IValue>& addrspace) {}
+inline int rsi_axisact(std::vector<int>& params, void* config, std::vector<IValue>& addrspace) {}
+inline int rsi_geartorque(std::vector<int>& params, void* config, std::vector<IValue>& addrspace) {}
+inline int rsi_motorcurrent(std::vector<int>& params, void* config, std::vector<IValue>& addrspace) {}
 
 
 #define VARIABLE_LEN 0
