@@ -1,10 +1,3 @@
-//
-//  main.cpp
-//  antlr4-cpp-demo
-//
-//  Created by Mike Lischke on 13.03.16.
-//
-
 #include <iostream>
 #include <fstream>
 #include <unordered_map>
@@ -18,6 +11,8 @@
 #include "RSICodeGenerator.h"
 #include "RSIExecutor.h"
 
+#include "RSIXml.h"
+
 using namespace antlr4;
 using namespace antlr4::tree;
 
@@ -27,7 +22,7 @@ std::unordered_map<int, std::string> rdataIndexMap;   // index --> var
 
 std::unordered_map<std::string, int> constIndexMap;   // the index of all the constants in addr space 
 
-std::unordered_set<std::string> fbMap;       // parser xml file and generator functionblock map
+std::unordered_map<std::string, EntityBase*> fbMap;       // parser xml file and generator functionblock map
 
 std::unordered_map<std::string, int> funcMap;       // all library function map to check if designated function is existed
 
@@ -37,11 +32,6 @@ IValue sys_ret_buffer;         // return value buffer of all the sys function
 
 
 void init(){
-  addrspace.push_back(1);
-  addrspace.push_back(2);
-
-  dataIndexMap.insert(std::pair<std::string, int>("A", 0));
-  dataIndexMap.insert(std::pair<std::string, int>("B", 1));
 
   for(int i = 0; i < RSI_LIB_SIZE; i ++) {
     funcMap.insert(std::pair<std::string, int>(libEntry[i].name, i));
@@ -50,18 +40,21 @@ void init(){
   for(auto elem : dataIndexMap) {
     rdataIndexMap.insert(std::pair<int, std::string>(elem.second, elem.first));
   }
-
 }
 
 
 int main(int , const char **) {
-  std::ifstream infile("rsi.code");
+
+
+  RSIXmlLoader loader("config.xml");
+  loader.parseXml(addrspace, dataIndexMap, fbMap);
 
   init();                     // parse xml file, build symbol table
-  for(auto elem : dataIndexMap) {
-    std::cout << elem.first << " : " << addrspace[elem.second] << std::endl;
-  }
+  // for(auto elem : dataIndexMap) {
+  //   std::cout << elem.first << " : " << addrspace[elem.second] << std::endl;
+  // }
 
+  std::ifstream infile("rsi.code");
   ANTLRInputStream input(infile);
   RSILexer lexer(&input);
   CommonTokenStream tokens(&lexer);
@@ -69,7 +62,7 @@ int main(int , const char **) {
   RSIParser parser(&tokens);
   ParseTree *tree = parser.prog();
 
-  RSIBaseVisitor vi;          // first time, build constant table
+  RSIBaseVisitor vi;                // first time, build constant table
   vi.visit(tree);
 
   CodeShadow code;
@@ -88,6 +81,13 @@ int main(int , const char **) {
 
   // for(auto e : addrspace) {
   //   std::cout << e << std::endl;
+  // }
+
+  // for(auto &e : fbMap) {
+  //   std::cout << e.first << std::endl;
+  //   e.second->printInfo();
+
+  //   std::cout << std::endl; 
   // }
 
 

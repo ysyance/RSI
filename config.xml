@@ -1,0 +1,13 @@
+<ROOT>
+	<DECLARE>
+		<VARIABLES>
+             <VAR NAME="A" TYPE="DOUBLE" INIT="1" />
+             <VAR NAME="B" TYPE="DOUBLE" INIT="2" />
+             <VAR NAME="C" TYPE="DOUBLE" INIT="-3.3" />
+         </VARIABLES>
+         <FUNBLOCK>
+             <FB NAME="PID0" TYPE="PID" Kp="4.0" Ki="10" Kd="0.1" />
+             <FB NAME="DELAY0" TYPE="DELAY" T="10" />
+         </FUNBLOCK>
+	</DECLARE>
+</ROOT>

@@ -303,3 +303,92 @@ static const RSILibEntry libEntry[RSI_LIB_SIZE] = {
 };
 
 
+/* ************** the Entity type of function block ***************** */
+class EntityBase {
+public:
+	EntityBase(std::string f) : funcName(f) {}
+
+	virtual int setConfig(std::string key, std::string value) = 0;
+
+	virtual int printInfo() { std::cout << "[> EntityBase <]" << std::endl; }
+
+public:
+	std::string funcName;
+};
+
+class EntityPID : public EntityBase{
+public:
+	EntityPID() : EntityBase("PID"), kp(0), ki(0), kd(0), Ts(10), prev(0) {}
+
+	virtual int setConfig(std::string key, std::string value) override {
+		if(key == "Kp")  {
+			kp = std::stod(value);
+		} else if(key == "Ki") {
+			ki = std::stod(value);
+		} else if(key == "Kd") {
+			kd = std::stod(value);
+		} else if(key == "Ts") {
+			Ts = std::stod(value);
+		} else {
+			return -1;
+		}
+		return 0;
+	}
+
+	virtual int printInfo() override {
+		std::cout << "Type: " << funcName << " --> ";
+		std::cout << "Kp=" << kp << " Ki=" << ki << " Kd=" << kd << " Ts=" << Ts << std::endl;
+	}
+
+public:
+	IValue kp;
+	IValue ki;
+	IValue kd;
+
+	IValue Ts;
+
+	IValue prev;
+};
+
+
+class EntityDELAY : public EntityBase{
+public:
+	EntityDELAY() : EntityBase("DELAY"), T(0) {}
+
+	virtual int setConfig(std::string key, std::string value) override {
+		if(key == "T")  {
+			T = std::stod(value);
+		} else {
+			return -1;
+		}
+		return 0;
+	}
+
+	virtual int printInfo() override {
+		std::cout << "Type: " << funcName << " --> ";
+		std::cout << "T=" << T << std::endl;
+	}
+
+public:
+	IValue T;
+};
+
+
+
+class EntityFactory {
+public:
+	static EntityBase* getEntity(std::string name) {
+		if(name == "PID") {
+			return new EntityPID();
+		} else if(name == "DELAY") {
+			return new EntityDELAY();
+		} else {
+			return NULL;
+		}
+	}
+};
+
+
+
+
+

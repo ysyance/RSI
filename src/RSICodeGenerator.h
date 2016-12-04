@@ -7,6 +7,8 @@
 #include <exception>
 #include <stdexcept>
 
+#include <cstdlib>
+
 #include "antlr4-runtime.h"
 #include "RSIBaseVisitor.h"
 
@@ -21,7 +23,7 @@ extern std::unordered_map<std::string, int> dataIndexMap;   // parser xml file a
 
 extern std::unordered_map<std::string, int> constIndexMap;   // the index of all the constants in addr space 
 
-extern std::unordered_set<std::string> fbMap;    		// parser xml file and generator functionblock map
+extern std::unordered_map<std::string, EntityBase*> fbMap;    		// parser xml file and generator functionblock map
 
 extern std::unordered_map<std::string, int> funcMap;  	    // all library function map to check if designated function is existed
 
@@ -264,8 +266,16 @@ public:
 		CallStatement *tempStat = new CallStatement(&addrspace, &sys_ret_buffer);
 
 		std::string call_id = ctx->ID()->getText();
+		if(fbMap.find(call_id) != fbMap.end()){
+			tempStat->config = fbMap[call_id];
+			call_id = fbMap[call_id]->funcName;
+		}
+
 		if(funcMap.find(call_id) != funcMap.end()) {
 			tempStat->index = funcMap[call_id];
+		} else {
+			std::cout << "cannot find the called function" << std::endl;
+			exit(0);
 		}
 		std::vector<int> *p = visit(ctx->params());
 		tempStat->params = *p;
