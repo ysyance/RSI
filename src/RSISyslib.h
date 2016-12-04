@@ -14,7 +14,6 @@ extern std::unordered_map<int, std::string> rdataIndexMap;   // index --> var
 
 extern std::vector<IValue> addrspace;			// RSI address space --- simple version
 
-extern IValue sys_ret_buffer;					// return value buffer of all the sys function
 
 typedef struct {
     char name[MAX_SPOU_NAME_SIZE];
@@ -82,24 +81,24 @@ typedef enum{
 
 
 inline int rsi_sum(std::vector<int>& params, void* config) {
-	sys_ret_buffer = 0;
+	addrspace[0] = 0;
 	for(int i = 0; i < params.size(); i ++) {
-		sys_ret_buffer += addrspace[params[i]];
+		addrspace[0] += addrspace[params[i]];
 	}
 	return 0;
 }
 
 inline int rsi_sub(std::vector<int>& params, void* config) {
-	sys_ret_buffer = addrspace[params[0]] - addrspace[params[1]];
+	addrspace[0] = addrspace[params[0]] - addrspace[params[1]];
 	return 0;
 }
 
 inline int rsi_multi(std::vector<int>& params, void* config) {
-	sys_ret_buffer = addrspace[params[0]] * addrspace[params[1]];
+	addrspace[0] = addrspace[params[0]] * addrspace[params[1]];
 	return 0;
 }
 inline int rsi_div(std::vector<int>& params, void* config) {
-	sys_ret_buffer = addrspace[params[0]] / addrspace[params[1]];
+	addrspace[0] = addrspace[params[0]] / addrspace[params[1]];
 	return 0;
 }
 
@@ -135,34 +134,34 @@ inline int rsi_print(std::vector<int>& params, void* config) {
 
 
 inline int rsi_eq(std::vector<int>& params, void* config) {
-	sys_ret_buffer = addrspace[params[0]] == addrspace[params[1]] ? 1 : 0;
+	addrspace[0] = addrspace[params[0]] == addrspace[params[1]] ? 1 : 0;
 	return 0;
 }
 
 inline int rsi_gt(std::vector<int>& params, void* config) {
-	sys_ret_buffer = addrspace[params[0]] > addrspace[params[1]] ? 1 : 0;
+	addrspace[0] = addrspace[params[0]] > addrspace[params[1]] ? 1 : 0;
 	return 0;
 }
 
 inline int rsi_ge(std::vector<int>& params, void* config) {
-	sys_ret_buffer = addrspace[params[0]] >= addrspace[params[1]] ? 1 : 0;
+	addrspace[0] = addrspace[params[0]] >= addrspace[params[1]] ? 1 : 0;
 	return 0;
 }
 
 inline int rsi_lt(std::vector<int>& params, void* config) {
-	sys_ret_buffer = addrspace[params[0]] < addrspace[params[1]] ? 1 : 0;
+	addrspace[0] = addrspace[params[0]] < addrspace[params[1]] ? 1 : 0;
 	return 0;
 }
 
 inline int rsi_le(std::vector<int>& params, void* config) {
-	sys_ret_buffer = addrspace[params[0]] <= addrspace[params[1]] ? 1 : 0;
+	addrspace[0] = addrspace[params[0]] <= addrspace[params[1]] ? 1 : 0;
 	return 0;
 }
 
 inline int rsi_and(std::vector<int>& params, void* config) {
 	int cond1 = addrspace[params[0]];
 	int cond2 = addrspace[params[1]];
-	sys_ret_buffer = cond1 && cond2;
+	addrspace[0] = cond1 && cond2;
 
 	return 0;
 }
@@ -170,7 +169,7 @@ inline int rsi_and(std::vector<int>& params, void* config) {
 inline int rsi_or(std::vector<int>& params, void* config) {
 	int cond1 = addrspace[params[0]];
 	int cond2 = addrspace[params[1]];
-	sys_ret_buffer = cond1 || cond2;
+	addrspace[0] = cond1 || cond2;
 
 	return 0;
 }
@@ -179,9 +178,9 @@ inline int rsi_xor(std::vector<int>& params, void* config) {
 	int cond1 = addrspace[params[0]];
 	int cond2 = addrspace[params[1]];
 	if(cond1 == 0 && cond2 != 0 || cond1 != 0 && cond2 == 0){
-		sys_ret_buffer = 1;
+		addrspace[0] = 1;
 	} else {
-		sys_ret_buffer = 0;
+		addrspace[0] = 0;
 	}
 	
 	return 0;
@@ -189,7 +188,7 @@ inline int rsi_xor(std::vector<int>& params, void* config) {
 
 inline int rsi_not(std::vector<int>& params, void* config) {
 	int cond1 = addrspace[params[0]];
-	sys_ret_buffer = (cond1 == 0 ? 1 : 0);
+	addrspace[0] = (cond1 == 0 ? 1 : 0);
 	return 0;
 }
 
@@ -204,17 +203,17 @@ inline int rsi_timer(std::vector<int>& params, void* config) {}
 inline int rsi_limit(std::vector<int>& params, void* config) {}
 
 inline int rsi_min(std::vector<int>& params, void* config) {
-	sys_ret_buffer = addrspace[params[0]];
+	addrspace[0] = addrspace[params[0]];
 	for(int i = 0; i < params.size(); i ++) {
-		sys_ret_buffer = addrspace[params[i]] < sys_ret_buffer ? addrspace[params[i]] : sys_ret_buffer;
+		addrspace[0] = addrspace[params[i]] < addrspace[0] ? addrspace[params[i]] : addrspace[0];
 	}
 	return 0;
 }
 
 inline int rsi_max(std::vector<int>& params, void* config) {
-	sys_ret_buffer = addrspace[params[0]];
+	addrspace[0] = addrspace[params[0]];
 	for(int i = 0; i < params.size(); i ++) {
-		sys_ret_buffer = addrspace[params[i]] > sys_ret_buffer ? addrspace[params[i]] : sys_ret_buffer;
+		addrspace[0] = addrspace[params[i]] > addrspace[0] ? addrspace[params[i]] : addrspace[0];
 	}
 	return 0;
 }

@@ -26,10 +26,7 @@ std::unordered_map<std::string, EntityBase*> fbMap;       // parser xml file and
 
 std::unordered_map<std::string, int> funcMap;       // all library function map to check if designated function is existed
 
-std::vector<IValue> addrspace;     // RSI address space --- simple version
-
-IValue sys_ret_buffer;         // return value buffer of all the sys function
-
+std::vector<IValue> addrspace(1, 0);     // RSI address space --- simple version; addrspace[0] is the returned value of all the library function  in global
 
 void init(){
 
@@ -49,10 +46,7 @@ int main(int , const char **) {
   RSIXmlLoader loader("config.xml");
   loader.parseXml(addrspace, dataIndexMap, fbMap);
 
-  init();                     // parse xml file, build symbol table
-  // for(auto elem : dataIndexMap) {
-  //   std::cout << elem.first << " : " << addrspace[elem.second] << std::endl;
-  // }
+  init();                     // build funcMap and rdataIndexMap
 
   std::ifstream infile("rsi.code");
   ANTLRInputStream input(infile);

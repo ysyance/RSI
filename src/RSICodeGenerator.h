@@ -130,7 +130,7 @@ public:
 		std::cout << "assignExpr" << std::endl;
 #endif
 
-		AssignStatement *tempStat = new AssignStatement(&addrspace, &sys_ret_buffer);
+		AssignStatement *tempStat = new AssignStatement(&addrspace);
 
 		std::string id = ctx->ID()->getText();
 		tempStat->left = dataIndexMap[id];
@@ -150,7 +150,7 @@ public:
 #ifdef RSI_DEBUG
 		std::cout << "ifExpr" << std::endl;
 #endif
-		IfStatement *tempStat = new IfStatement(&addrspace, &sys_ret_buffer);
+		IfStatement *tempStat = new IfStatement(&addrspace);
 
 		antlrcpp::Any ret = visit(ctx->expr());
 		if(ret.is<CallStatement*>()) {
@@ -192,7 +192,7 @@ public:
 #ifdef RSI_DEBUG
 		std::cout << "elseifExpr" << std::endl;
 #endif
-		ElseifStatement *tempStat = new ElseifStatement(&addrspace, &sys_ret_buffer);
+		ElseifStatement *tempStat = new ElseifStatement(&addrspace);
 
 		antlrcpp::Any ret = visit(ctx->expr());
 		if(ret.is<CallStatement*>()) {
@@ -222,7 +222,7 @@ public:
 #ifdef RSI_DEBUG
 		std::cout << "whileExpr" << std::endl;
 #endif
-		WhileStatement *tempStat = new WhileStatement(&addrspace, &sys_ret_buffer);
+		WhileStatement *tempStat = new WhileStatement(&addrspace);
 
 		antlrcpp::Any ret = visit(ctx->expr());
 		if(ret.is<CallStatement*>()) {
@@ -245,7 +245,7 @@ public:
 #ifdef RSI_DEBUG
 		std::cout << "loopExpr" << std::endl;
 #endif
-		LoopStatement *tempStat = new LoopStatement(&addrspace, &sys_ret_buffer);
+		LoopStatement *tempStat = new LoopStatement(&addrspace);
 
 		tempStat->varIndex = visit(ctx->var());
 
@@ -263,7 +263,7 @@ public:
 #ifdef RSI_DEBUG
 		std::cout << "callExpr" << std::endl;
 #endif
-		CallStatement *tempStat = new CallStatement(&addrspace, &sys_ret_buffer);
+		CallStatement *tempStat = new CallStatement(&addrspace);
 
 		std::string call_id = ctx->ID()->getText();
 		if(fbMap.find(call_id) != fbMap.end()){

@@ -14,24 +14,22 @@ extern std::vector<IValue> dataspace;			// RSI address space
 
 extern std::vector<IValue> addrspace;			// RSI address space --- simple version
 
-extern IValue sys_ret_buffer;					// return value buffer of all the sys function
 
 
 class BaseStatement {
 public:
 	BaseStatement() {}
-	BaseStatement(std::vector<IValue> *as, IValue *srb) : addr(as), ret_buf(srb) {}
+	BaseStatement(std::vector<IValue> *as) : addr(as) {}
 
 	virtual int execute(void *cookie) = 0;
 public:
 	std::vector<IValue> *addr;
-	IValue *ret_buf;
 };
 
 class AssignStatement : public BaseStatement {
 public:
 	AssignStatement(){}
-	AssignStatement(std::vector<IValue> *as, IValue *srb) : BaseStatement(as, srb), caller(NULL) {}
+	AssignStatement(std::vector<IValue> *as) : BaseStatement(as), caller(NULL) {}
 
 	virtual int execute(void *cookie) override{
 #ifdef RSI_DEBUG
@@ -41,7 +39,7 @@ public:
 			(*addr)[left] = (*addr)[right];
 		} else {
 			caller->execute(cookie);
-			(*addr)[left] = *ret_buf;
+			(*addr)[left] = (*addr)[0];
 		}
 	}
 
@@ -54,8 +52,8 @@ public:
 class IfStatement : public BaseStatement {
 public:
 	IfStatement() {}
-	IfStatement(std::vector<IValue> *as, IValue *srb) : 
-			BaseStatement(as, srb), exprCaller(NULL),
+	IfStatement(std::vector<IValue> *as) : 
+			BaseStatement(as), exprCaller(NULL),
 			ifThenStat(NULL), elseifThenStat(NULL), elseThenStat(NULL)
 			{}
 
@@ -68,7 +66,7 @@ public:
 			cond = (int)(*addr)[exprVar];
 		} else {
 			exprCaller->execute(cookie);
-			cond = *ret_buf;
+			cond = (*addr)[0];
 		}
 		if(cond) {
 			for(auto &elem : *ifThenStat) {
@@ -102,8 +100,8 @@ public:
 class ElseifStatement : public BaseStatement {
 public:
 	ElseifStatement() {}
-	ElseifStatement(std::vector<IValue> *as, IValue *srb) : 
-						BaseStatement(as, srb), flag(0),
+	ElseifStatement(std::vector<IValue> *as) : 
+						BaseStatement(as), flag(0),
 						exprCaller(NULL), Stat(NULL)
 			 			{}
 
@@ -113,7 +111,7 @@ public:
 			cond = (int)(*addr)[exprVar];
 		} else {
 			exprCaller->execute(cookie);
-			cond = *ret_buf;
+			cond = (*addr)[0];
 		}
 		if(cond) {
 			flag = 1;
@@ -135,7 +133,7 @@ public:
 class LoopStatement : public BaseStatement {
 public:
 	LoopStatement() {}
-	LoopStatement(std::vector<IValue> *as, IValue *srb) : BaseStatement(as, srb) {}
+	LoopStatement(std::vector<IValue> *as) : BaseStatement(as) {}
 
 	virtual int execute(void *cookie) override {
 #ifdef RSI_DEBUG
@@ -159,8 +157,8 @@ public:
 class WhileStatement : public BaseStatement {
 public:
 	WhileStatement() {}
-	WhileStatement(std::vector<IValue> *as, IValue *srb) : 
-									BaseStatement(as, srb),exprCaller(NULL) {}
+	WhileStatement(std::vector<IValue> *as) : 
+									BaseStatement(as),exprCaller(NULL) {}
 
 	virtual int execute(void *cookie) override {
 #ifdef RSI_DEBUG
@@ -176,7 +174,7 @@ public:
 		} else {
 			while(1) {
 				exprCaller->execute(cookie);
-				cond = *ret_buf;
+				cond = (*addr)[0];
 				if(cond == 0) break;
 				for(auto &elem : *Stat) {
 					elem->execute(cookie);
@@ -194,7 +192,7 @@ public:
 class CallStatement : public BaseStatement {
 public:
 	CallStatement() {}
-	CallStatement(std::vector<IValue> *as, IValue *srb) : BaseStatement(as, srb) {}
+	CallStatement(std::vector<IValue> *as) : BaseStatement(as) {}
 
 	virtual int execute(void *cookie) override {
 #ifdef RSI_DEBUG
