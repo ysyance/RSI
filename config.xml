@@ -48,7 +48,7 @@
     <COMMUNICATION>
         <CONFIG>
             <COM_TYPE>UDP</COM_TYPE>
-            <IP>192.168.1.100</IP>   
+            <IP>127.0.0.1</IP>   
             <PORT>49152</PORT>                         
             <ROOTNAME>Root</ROOTNAME>            
         </CONFIG>

@@ -1,6 +1,11 @@
 
 #pragma once
 
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
 #include <iostream>
 #include <vector>
 #include <string>
@@ -554,8 +559,6 @@ public:
 		} else {
 			return -1;
 		}
-		
-		
 	}
 
 public:
@@ -569,7 +572,10 @@ public:
 
 	std::vector<SendDataElem> sendDataMap;		// send data rule
 public:
-	bool initflag;					
+	bool initflag;		
+
+	int sockfd;							// udp socket fd
+	struct sockaddr_in addr;			// target socket address		
 
 	char sendBuffer[4096];			
 	char recvBuffer[4096];
