@@ -5,9 +5,9 @@
              <VAR NAME="B" TYPE="DOUBLE" INIT="2" />
              <VAR NAME="C" TYPE="DOUBLE" INIT="-3.3" />
 
-             <VAR NAME="CPX" TYPE="DOUBLE" />
-             <VAR NAME="CPY" TYPE="DOUBLE" />
-             <VAR NAME="CPZ" TYPE="DOUBLE" />
+             <VAR NAME="CPX" TYPE="DOUBLE" INIT="1.0" />
+             <VAR NAME="CPY" TYPE="DOUBLE" INIT="2.0"/>
+             <VAR NAME="CPZ" TYPE="DOUBLE" INIT="100"/>
              <VAR NAME="CPA" TYPE="DOUBLE" />
              <VAR NAME="CPB" TYPE="DOUBLE" />
              <VAR NAME="CPC" TYPE="DOUBLE" />

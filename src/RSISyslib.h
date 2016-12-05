@@ -8,6 +8,8 @@
 
 #include <memory.h>
 
+#include <tinyxml.h>
+
 #include "IValue.h"
 
 #define MAX_SPOU_NAME_SIZE  50
@@ -134,9 +136,9 @@ inline int rsi_dec(std::vector<int>& params, EntityBase* config, std::vector<IVa
 
 inline int rsi_print(std::vector<int>& params, EntityBase* config, std::vector<IValue>& addrspace) {
 #ifdef RSI_DEBUG_PRINT
-	std::cout << "[DEBUG: " << rdataIndexMap[params[0]] << " --> " << addrspace[params[0]] << " ]" << std::endl;
+	std::cout << std::endl << "[DEBUG: " << rdataIndexMap[params[0]] << " --> " << addrspace[params[0]] << " ]" << std::endl;
 #else
-	std::cout << "Macro RSI_DEBUG_PRINT not defined" << std::endl;
+	std::cout << std::endl << "Macro RSI_DEBUG_PRINT not defined" << std::endl;
 #endif
 	return 0;
 }
@@ -348,7 +350,7 @@ public:
 	}
 
 	virtual int printInfo() override {
-		std::cout << "Type: " << funcName << " --> ";
+		std::cout << std::endl << "Type: " << funcName << " --> ";
 		std::cout << "Kp=" << kp << " Ki=" << ki << " Kd=" << kd << " Ts=" << Ts << std::endl;
 	}
 
@@ -377,7 +379,7 @@ public:
 	}
 
 	virtual int printInfo() override {
-		std::cout << "Type: " << funcName << " --> ";
+		std::cout << std::endl << "Type: " << funcName << " --> ";
 		std::cout << "T=" << T << std::endl;
 	}
 
@@ -478,7 +480,7 @@ public:
 	}
 
 	virtual int printInfo() override {
-		std::cout << "Type: " << funcName << " --> ";
+		std::cout << std::endl << "Type: " << funcName << " --> ";
 		std::cout << "comm_type=" << comm_type << " ip=" << ip << " port=" << port << " rootNode=" << rootNode << std::endl;
 		std::cout << "[> --- SENDDATAMAP --- <]" << std::endl;
 		for(auto &e : sendDataMap) {
@@ -499,6 +501,61 @@ public:
 			}
 			std::cout << std::endl;
 		}
+	}
+
+public:
+	int xmlGenerate(std::vector<IValue>& addrspace) {
+		TiXmlDocument doc;
+		TiXmlElement *rootEle = new TiXmlElement(rootNode);
+		for(auto &e : sendDataMap) {
+			TiXmlElement *tagEle = new TiXmlElement(e.tag);
+			for(auto &elem : e.dataMap) {
+				tagEle->SetAttribute(elem.first, std::to_string(addrspace[elem.second]));
+			}
+			if(e.tagText.first != "") {
+				tagEle->LinkEndChild(new TiXmlText(std::to_string(e.tagText.second)));
+			}
+			rootEle->LinkEndChild(tagEle);
+		}
+		doc.LinkEndChild(rootEle);
+
+		TiXmlPrinter printer;
+		// printer.SetIndent( "\t" );
+
+		doc.Accept( &printer );
+		sprintf( sendBuffer, "%s", printer.CStr() );
+
+		return 0;
+	}
+
+
+	int xmlParse(std::vector<IValue>& addrspace) {
+		TiXmlDocument doc;
+		doc.Parse(recvBuffer);
+		
+		TiXmlElement* rootEle = doc.RootElement();  
+
+		if(rootEle != NULL && rootEle->Value() == rootNode) {
+			TiXmlElement* dataEle = rootEle->FirstChildElement();
+
+			for(; dataEle != NULL; dataEle = dataEle->NextSiblingElement()) {
+				std::string tag = dataEle->Value();
+				std::unordered_map<std::string, int> &mp = recvDataMap[tag];
+
+				TiXmlAttribute* attr = dataEle->FirstAttribute();
+				for(; attr != NULL; attr = attr->Next()) {
+					addrspace[mp[attr->Name()]] = std::stod(attr->Value());
+				}
+				if(mp.find(tag) != mp.end()) {
+					addrspace[mp[tag]] = std::stod(dataEle->GetText());
+				} 
+			}
+			return 0;
+		} else {
+			return -1;
+		}
+		
+		
 	}
 
 public:

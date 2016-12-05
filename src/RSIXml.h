@@ -40,3 +40,4 @@ public:
 	std::string xmlFile;
 	TiXmlDocument doc; 
 };
+
